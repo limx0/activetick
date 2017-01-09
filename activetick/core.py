@@ -1,13 +1,14 @@
 
-from io import BytesIO
-import pandas as pd
-from activetick.util import activetick_request, get_activetick_data, option_feedcode_to_detail, dt_to_str
+from activetick.request import get_activetick_data
+from activetick.util import dt_to_str
 
 
-def get_option_chain(underlying, **kwargs):
-    data = activetick_request('optionChain', {'symbol': underlying}, **kwargs)
-    df = pd.read_csv(BytesIO(data), names=['Feedcode'])
-    return df['Feedcode'].apply(option_feedcode_to_detail)
+def get_option_chain(symbol, **kwargs):
+    end_point = 'optionChain'
+    header = ['FEEDCODE']
+    args = {'symbol': symbol}
+    kwargs['index_col'] = None
+    return get_activetick_data(end_point, args, header, symbol, **kwargs)
 
 
 def request_quote_ticks(symbol, date_from, date_to, **kwargs):
@@ -21,7 +22,7 @@ def request_quote_ticks(symbol, date_from, date_to, **kwargs):
         'beginTime': dt_to_str(date_from),
         'endTime': dt_to_str(date_to)
     }
-    return get_activetick_data(end_point, args, header, symbol, **kwargs)
+    return get_activetick_data(end_point, args, header, symbol, ignore_cols=['RECORD'], **kwargs)
 
 
 def request_trade_ticks(symbol, date_from, date_to, **kwargs):
@@ -36,7 +37,7 @@ def request_trade_ticks(symbol, date_from, date_to, **kwargs):
         'endTime': dt_to_str(date_to)
     }
 
-    return get_activetick_data(end_point, args, header, symbol, **kwargs)
+    return get_activetick_data(end_point, args, header, symbol, ignore_cols=['RECORD'], **kwargs)
 
 
 def request_bar_data(symbol, date_from, date_to, bar_size=1, **kwargs):
@@ -50,4 +51,4 @@ def request_bar_data(symbol, date_from, date_to, bar_size=1, **kwargs):
         'endTime': dt_to_str(date_to)
     }
 
-    return get_activetick_data(end_point, args, header, symbol, **kwargs)
+    return get_activetick_data(end_point, args, header, symbol, ignore_cols=['RECORD'], **kwargs)
