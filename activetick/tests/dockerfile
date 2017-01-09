@@ -1,0 +1,23 @@
+
+FROM centos
+
+##===================================
+# Install HTTP Server
+##===================================
+ENV BINARY=atfeed-httpserver-centos.x86_64.tar.gz
+ENV URL=https://www.activetick.com/activetick/contents/binaries/atfeedapi
+ENV LD_LIBRARY_PATH="/usr/local/lib:/bin/atfeed-httpserver/bin/"
+RUN curl -O "$URL/$BINARY" && \
+    tar -xf $BINARY && \
+    mv atfeed-httpserver/ /bin/atfeed-httpserver/ && \
+    rm atfeed-httpserver-centos.x86_64.tar.gz
+
+##===================================
+# Run Server
+##===================================
+ENV HOST=127.0.0.1
+ENV PORT=5000
+ENV SERVER=activetick1.activetick.com
+
+WORKDIR /bin/atfeed-httpserver/bin/
+ENTRYPOINT ./ActiveTickFeedHttpServer $HOST $PORT $SERVER $API_KEY $USERNAME $PASSWORD
